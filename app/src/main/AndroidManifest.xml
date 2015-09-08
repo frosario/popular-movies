@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.frosario.popularmovies" >
 
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,6 +20,23 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <provider
+            android:name=".MovieProvider"
+            android:authorities="com.example.frosario.popularmovies.provider"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
+
+        <activity
+            android:name=".ApiKeyActivity"
+            android:label="@string/title_activity_api_key"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.frosario.popularmovies.MainActivity" />
         </activity>
     </application>
 
