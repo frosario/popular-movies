@@ -1,10 +1,14 @@
 package com.example.frosario.popularmovies;
 
+import android.accounts.Account;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,12 +34,25 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
-            startActivity(intent);
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.sync:
+                triggerSync();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void triggerSync() {
+        Account account = new Account("example","dummyaccount");
+        String authority = "com.example.frosario.popularmovies.provider";
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account,authority,bundle);
     }
 }

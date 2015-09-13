@@ -2,13 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.frosario.popularmovies" >
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -22,13 +21,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".MovieProvider"
-            android:authorities="com.example.frosario.popularmovies.provider"
-            android:enabled="true"
-            android:exported="false" >
-        </provider>
-
         <activity
             android:name=".ApiKeyActivity"
             android:label="@string/title_activity_api_key"
@@ -38,6 +30,39 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.frosario.popularmovies.MainActivity" />
         </activity>
+
+        <provider
+            android:name=".MovieProvider"
+            android:authorities="com.example.frosario.popularmovies.provider"
+            android:enabled="true"
+            android:exported="false"
+            android:syncable="true" >
+        </provider>
+
+        <service
+            android:name=".SyncService"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name=".SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name=".SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+
+        <service android:name=".AuthenticatorService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.frosario.popularmovies.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.example.frosario.popularmovies.AuthenticatorAuthenticator"
+                android:resource="@xml/authenticator">
+            </meta-data>
+        </service>
     </application>
 
 </manifest>

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-//TODO: Restore a saved API Key into the view
 public class ApiKeyActivityFragment extends Fragment {
     private SharedPreferences sharedPrefs;
 
