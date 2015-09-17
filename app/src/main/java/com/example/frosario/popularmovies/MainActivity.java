@@ -28,31 +28,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        Intent intent = null;
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-                Intent intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
+                intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             case R.id.sync:
-                triggerSync();
-                return true;
+                intent = new Intent(this,com.example.frosario.popularmovies.SyncService.class);
+                startService(intent);
+                break;
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    public void triggerSync() {
-        Account account = new Account("example","dummyaccount");
-        String authority = "com.example.frosario.popularmovies.provider";
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account,authority,bundle);
     }
 }

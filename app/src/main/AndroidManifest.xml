@@ -20,7 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ApiKeyActivity"
             android:label="@string/title_activity_api_key"
@@ -43,26 +42,8 @@
             android:name=".SyncService"
             android:enabled="true"
             android:exported="false" >
-            <intent-filter>
-                <action android:name=".SyncAdapter" />
-            </intent-filter>
-
-            <meta-data
-                android:name=".SyncAdapter"
-                android:resource="@xml/syncadapter" />
         </service>
 
-        <service android:name=".AuthenticatorService"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.example.frosario.popularmovies.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data
-                android:name="com.example.frosario.popularmovies.AuthenticatorAuthenticator"
-                android:resource="@xml/authenticator">
-            </meta-data>
-        </service>
     </application>
 
 </manifest>

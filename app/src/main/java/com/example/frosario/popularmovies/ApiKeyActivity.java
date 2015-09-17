@@ -2,6 +2,7 @@ package com.example.frosario.popularmovies;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +25,8 @@ public class ApiKeyActivity extends AppCompatActivity {
         String apiKey = t.getText().toString();
 
         if (String.valueOf(R.id.textApiKeyString).length() > 0) {
-            SharedPreferences sharedPrefs = this.getPreferences(Context.MODE_PRIVATE);
+            String file = this.getString(R.string.shared_preferences);
+            SharedPreferences sharedPrefs = getSharedPreferences(file,MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putString("API_Key", apiKey);
             editor.apply();
