@@ -9,7 +9,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Iterator;
 
 /**
  * DB columns: title, release_date, poster_path, vote_average, overview
@@ -69,8 +74,34 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        long id = db.insert("movies",null,values);
-        if (id != -1) Log.e(TAG,"DB insert failed: " + values.toString());
+        try {
+            JSONArray results = new JSONArray(values.getAsString("results"));
+            JSONObject json;
+            ContentValues cv = new ContentValues();
+            db = openDB(getContext());
+            db.delete("movies",null,null); //Empty out table
+            db.beginTransaction();
+
+            for (int i = 0; i < results.length(); i++) {
+                json = (JSONObject) results.get(i);
+                Iterator iterator = json.keys();
+
+                while (iterator.hasNext()){
+                    String key = (String) iterator.next();
+                    String value = json.getString(key);
+                    cv.put(key, value);
+                }
+
+                db.insertOrThrow("movies",null,cv);
+            }
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
+        } catch (org.json.JSONException e) {
+            e.getStackTrace();
+        }
+
         //TODO: Download movies posters and save to filesystem
         return uri;
     }
@@ -78,9 +109,13 @@ public class MovieProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         Context context = getContext();
-        db = context.openOrCreateDatabase("movies.db", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS movies (title VARCHAR, release_date DATETIME, " +
-                "poster_path VARCHAR, vote_average FLOAT, overview VARCHAR)");
+        db = openDB(context);
+        String COLUMN_DEFINITIONS = "popularity VARCHAR," + "vote_average FLOAT," + "original_title VARCHAR," +
+        "adult BOOLEAN," + "video VARCHAR," + "original_language VARCHAR," + "overview VARCHAR," + "title VARCHAR," +
+        "backdrop_path VARCHAR," + "id LONG," + "release_date VARCHAR," + "poster_path VARCHAR," + "vote_count LONG," +
+        "genre_ids VARCHAR";
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS movies (" + COLUMN_DEFINITIONS + ")");
         return true;
     }
 
@@ -104,5 +139,9 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority,"/movies",1);
         matcher.addURI(authority,"/movies/#",2);
         return matcher;
+    }
+
+    private SQLiteDatabase openDB(Context c) {
+        return c.openOrCreateDatabase("movies.db", Context.MODE_PRIVATE, null);
     }
 }

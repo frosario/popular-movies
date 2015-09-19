@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -38,14 +39,9 @@ public class SyncService extends IntentService {
 
         try {
             JSONObject moviesJson = queryApi(apiUrl);
+            String results = moviesJson.getString("results");
             ContentValues contentValues = new ContentValues();
-
-            for (Iterator<String> keys = moviesJson.keys(); keys.hasNext();) {
-                String k = keys.next();
-                String v = moviesJson.getString(k);
-                contentValues.put(k,v);
-            }
-
+            contentValues.put("results",results);
             this.getContentResolver().insert(resolverUri, contentValues);
             //TODO: Download movies posters and save to filesystem
 
@@ -89,22 +85,12 @@ public class SyncService extends IntentService {
                     throw new NetworkErrorException("Invalid API key: You must be granted a valid key.");
             }
 
-            apiConnection.getContentLength();
             InputStream inputStream = apiConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-            String line = "";
-            String output_string = "";
-            while ((line = bufferedReader.readLine()) != null)
-                output_string += line;
-
-            json = new JSONObject(output_string);
+            String outputString = inputToString(inputStream);
+            json = new JSONObject(outputString);
 
             //clean up
             inputStream.close();
-            inputStreamReader.close();
-            bufferedReader.close();
             apiConnection.disconnect();
 
         } catch (java.io.IOException | org.json.JSONException e) {
@@ -112,5 +98,26 @@ public class SyncService extends IntentService {
         }
 
         return json;
+    }
+
+    private String inputToString(InputStream is) {
+        String tmpString = "";
+
+        try {
+            InputStreamReader inputStreamReader = new InputStreamReader(is);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line = "";
+
+            while ((line = bufferedReader.readLine()) != null)
+                tmpString += line;
+
+            inputStreamReader.close();
+            bufferedReader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return tmpString;
     }
 }
