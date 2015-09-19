@@ -8,18 +8,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.Iterator;
-
-/**
- * DB columns: title, release_date, poster_path, vote_average, overview
- * Movie posters saved to filesystem
- */
 
 public class MovieProvider extends ContentProvider {
     private SQLiteDatabase db;

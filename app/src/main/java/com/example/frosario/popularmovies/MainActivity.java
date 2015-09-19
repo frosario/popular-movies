@@ -3,7 +3,9 @@ package com.example.frosario.popularmovies;
 import android.accounts.Account;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,20 +30,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        String file = this.getString(R.string.shared_preferences);
+        SharedPreferences sharedPrefs = this.getSharedPreferences(file, Context.MODE_PRIVATE);
+        String apiKey = sharedPrefs.getString("API_Key", "");
+        if (apiKey.equals("")) {
+            startApiKeyActivity();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = null;
         int id = item.getItemId();
 
         switch (id) {
             case R.id.action_settings:
-                intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
-                startActivity(intent);
+                startApiKeyActivity();
                 break;
             case R.id.sync:
-                intent = new Intent(this,com.example.frosario.popularmovies.SyncService.class);
-                startService(intent);
+                startSyncService();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startApiKeyActivity() {
+        intent = new Intent(this,com.example.frosario.popularmovies.ApiKeyActivity.class);
+        startActivity(intent);
+    }
+
+    private void startSyncService() {
+        intent = new Intent(this,com.example.frosario.popularmovies.SyncService.class);
+        startService(intent);
     }
 }
