@@ -1,7 +1,9 @@
 package com.example.frosario.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,5 +34,22 @@ public class ApiKeyActivityFragment extends Fragment {
             EditText t = (EditText) view.findViewById(R.id.textApiKeyString);
             t.setText(apiKey);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        TextView textView = (TextView) getActivity().findViewById(R.id.api_help_text);
+        textView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String url = "https://www.themoviedb.org/faq/api";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            }
+        });
+
     }
 }
