@@ -32,7 +32,7 @@
 
         <provider
             android:name=".MovieProvider"
-            android:authorities="com.example.frosario.popularmovies.provider"
+            android:authorities="com.example.frosario.popularmovies"
             android:enabled="true"
             android:exported="false"
             android:syncable="true" >

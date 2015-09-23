@@ -21,6 +21,19 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
+    public boolean onCreate() {
+        Context context = getContext();
+        db = openDB(context);
+        String COLUMN_DEFINITIONS = "popularity VARCHAR," + "vote_average FLOAT," + "original_title VARCHAR," +
+                "adult BOOLEAN," + "video VARCHAR," + "original_language VARCHAR," + "overview VARCHAR," + "title VARCHAR," +
+                "backdrop_path VARCHAR," + "id LONG," + "release_date VARCHAR," + "poster_path VARCHAR," + "vote_count LONG," +
+                "genre_ids VARCHAR";
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS movies (" + COLUMN_DEFINITIONS + ")");
+        return true;
+    }
+
+    @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException();
     }
@@ -59,28 +72,13 @@ public class MovieProvider extends ContentProvider {
         } catch (org.json.JSONException e) {
             e.getStackTrace();
         }
-
-        //TODO: Download movies posters and save to filesystem
         return uri;
     }
 
     @Override
-    public boolean onCreate() {
-        Context context = getContext();
-        db = openDB(context);
-        String COLUMN_DEFINITIONS = "popularity VARCHAR," + "vote_average FLOAT," + "original_title VARCHAR," +
-        "adult BOOLEAN," + "video VARCHAR," + "original_language VARCHAR," + "overview VARCHAR," + "title VARCHAR," +
-        "backdrop_path VARCHAR," + "id LONG," + "release_date VARCHAR," + "poster_path VARCHAR," + "vote_count LONG," +
-        "genre_ids VARCHAR";
-
-        db.execSQL("CREATE TABLE IF NOT EXISTS movies (" + COLUMN_DEFINITIONS + ")");
-        return true;
-    }
-
-    @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-                        String[] selectionArgs, String sortOrder) {
-        throw new UnsupportedOperationException();
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        String[] columns = {"id", "poster_path", "popularity", "vote_average"};
+        return db.query("movies", columns, null, null, null, null, null, "20");
     }
 
     @Override

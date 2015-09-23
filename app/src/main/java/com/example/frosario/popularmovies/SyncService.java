@@ -10,13 +10,17 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
@@ -35,15 +39,16 @@ public class SyncService extends IntentService {
         String file = this.getString(R.string.shared_preferences);
         sharedPrefs = getSharedPreferences(file,Context.MODE_PRIVATE);
         URL apiUrl = buildApiUrl();
-        Uri resolverUri = Uri.parse("content://com.example.frosario.popularmovies.provider/");
+        Uri resolverUri = Uri.parse("content://com.example.frosario.popularmovies/");
 
         try {
             JSONObject moviesJson = queryApi(apiUrl);
-            String results = moviesJson.getString("results");
+            JSONArray results = (JSONArray) moviesJson.get("results");
+            downloadMoviePosters(results);
+            String stringResults = moviesJson.getString("results");
             ContentValues contentValues = new ContentValues();
-            contentValues.put("results",results);
+            contentValues.put("results",stringResults);
             this.getContentResolver().insert(resolverUri, contentValues);
-            //TODO: Download movies posters and save to filesystem
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -106,7 +111,7 @@ public class SyncService extends IntentService {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(is);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String line = "";
+            String line;
 
             while ((line = bufferedReader.readLine()) != null)
                 tmpString += line;
@@ -119,5 +124,20 @@ public class SyncService extends IntentService {
         }
 
         return tmpString;
+    }
+
+    private void downloadMoviePosters(JSONArray jsonArray) throws org.json.JSONException,java.io.IOException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject movie = (JSONObject) jsonArray.get(i);
+            String poster_path = movie.getString("poster_path");
+            String urlString = "http://image.tmdb.org/t/p/w185" + poster_path;
+            File file = new File(this.getFilesDir(), poster_path);
+
+            if (!file.exists()) {
+                URL url = new URL(urlString);
+                FileUtils.copyURLToFile(url, file);
+            }
+
+        }
     }
 }
