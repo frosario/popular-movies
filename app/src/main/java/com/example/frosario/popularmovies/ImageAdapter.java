@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,6 +84,7 @@ public class ImageAdapter extends BaseAdapter {
             posterView.setImageURI(uri);
         } else {
             Log.d(TAG,file.toString() + " has not been downloaded yet");
+            posterView.setImageResource(R.drawable.no_poster);
         }
 
         return posterView;

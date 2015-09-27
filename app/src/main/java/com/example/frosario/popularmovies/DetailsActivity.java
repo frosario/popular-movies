@@ -80,11 +80,12 @@ public class DetailsActivity extends AppCompatActivity {
         if (file.exists()) {
             Uri fileUri = Uri.parse("file://" + file.toString());
             imageView.setImageURI(fileUri);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
             Log.d(TAG,"Poster image not found: " + file.toString());
+            imageView.setImageResource(R.drawable.no_poster);
         }
 
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         cursor.close();
     }
 }

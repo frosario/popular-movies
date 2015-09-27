@@ -2,18 +2,17 @@ package com.example.frosario.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import org.json.JSONObject;
 
 public class CheckEmptyDbTask extends AsyncTask {
     private Context context;
@@ -32,6 +31,12 @@ public class CheckEmptyDbTask extends AsyncTask {
         if (hasEmptyDB()) {
             Log.i(TAG, "Database empty. Performing initial sync");
             Intent intent = new Intent(context,com.example.frosario.popularmovies.SyncService.class);
+
+            String file = context.getString(R.string.shared_preferences);
+            SharedPreferences sharedPrefs = context.getSharedPreferences(file, Context.MODE_PRIVATE);
+            String currentSort = sharedPrefs.getString("currentSort", null);
+
+            if (currentSort != null) { intent.putExtra("sortPreference",currentSort); }
             context.startService(intent);
         }
 
@@ -72,7 +77,7 @@ public class CheckEmptyDbTask extends AsyncTask {
         posterGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Intent intent = new Intent(context,com.example.frosario.popularmovies.DetailsActivity.class);
+                Intent intent = new Intent(context, com.example.frosario.popularmovies.DetailsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("id", id);
                 context.startActivity(intent);

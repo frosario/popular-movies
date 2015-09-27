@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class MovieProvider extends ContentProvider {
     private SQLiteDatabase db;
-    private static final String TAG = "movieProvider";
+    private static final String TAG = "MovieProvider";
 
     public MovieProvider() {
     }
@@ -38,7 +38,9 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException();
+        db.delete("movies",null,null); //Empty out table
+        Log.d(TAG,"All values in database deleted");
+        return 0;
     }
 
     @Override
@@ -52,7 +54,6 @@ public class MovieProvider extends ContentProvider {
             JSONArray results = new JSONArray(values.getAsString("results"));
             JSONObject json;
             ContentValues cv = new ContentValues();
-            db = openDB(getContext());
             db.delete("movies",null,null); //Empty out table
             db.beginTransaction();
 
@@ -71,6 +72,7 @@ public class MovieProvider extends ContentProvider {
 
             db.setTransactionSuccessful();
             db.endTransaction();
+            Log.d(TAG,"Database updated with new values");
 
         } catch (org.json.JSONException e) {
             e.getStackTrace();
@@ -100,8 +102,7 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,
-                      String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException();
     }
 

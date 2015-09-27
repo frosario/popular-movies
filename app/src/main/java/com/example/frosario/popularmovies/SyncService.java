@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
@@ -35,14 +37,23 @@ public class SyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "Performing sync");
         String file = this.getString(R.string.shared_preferences);
         sharedPrefs = getSharedPreferences(file,Context.MODE_PRIVATE);
-        URL apiUrl = buildApiUrl();
+        URL apiUrl;
+
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            String sortPref = extras.getString("sortPreference");
+            apiUrl = buildApiUrl(sortPref);
+        } else {
+            apiUrl = buildApiUrl(null);
+        }
+
         Uri resolverUri = Uri.parse("content://com.example.frosario.popularmovies/");
 
         try {
             JSONObject moviesJson = queryApi(apiUrl);
+            Log.d(TAG,"Peformed API call to: " + apiUrl.toString());
             JSONArray results = (JSONArray) moviesJson.get("results");
             downloadMoviePosters(results);
             String stringResults = moviesJson.getString("results");
@@ -55,13 +66,25 @@ public class SyncService extends IntentService {
         }
     }
 
-    private URL buildApiUrl() {
+    private URL buildApiUrl(String sortBy) {
         URL url = null;
+        String SORT_BY_POPULARITY_PARAM = null;
         String api_key = sharedPrefs.getString("API_Key",null);
 
         //Build the url string for the API call
         String API_URL = "http://api.themoviedb.org/3/discover/movie";
-        String SORT_BY_POPULARITY_PARAM = "sort_by=popularity.desc";
+
+        try {
+            if (sortBy.equals("ratings")) {
+                SORT_BY_POPULARITY_PARAM = "sort_by=vote_average.desc";
+            } else {
+                SORT_BY_POPULARITY_PARAM = "sort_by=popularity.desc";
+            }
+        } catch (NullPointerException e) {
+            Log.d(TAG,"sortBy was null");
+            SORT_BY_POPULARITY_PARAM = "sort_by=popularity.desc";
+        }
+
         String API_PARAM = "api_key=" + api_key;
         String url_string = API_URL + "?" + SORT_BY_POPULARITY_PARAM + "&" + API_PARAM;
 
@@ -130,12 +153,15 @@ public class SyncService extends IntentService {
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject movie = (JSONObject) jsonArray.get(i);
             String poster_path = movie.getString("poster_path");
-            String urlString = "http://image.tmdb.org/t/p/w185" + poster_path;
-            File file = new File(this.getFilesDir(), poster_path);
 
-            if (!file.exists()) {
-                URL url = new URL(urlString);
-                FileUtils.copyURLToFile(url, file);
+            if (!poster_path.equals("null")) {
+                String urlString = "http://image.tmdb.org/t/p/w185" + poster_path;
+                File file = new File(this.getFilesDir(), poster_path);
+
+                if (!file.exists()) {
+                    URL url = new URL(urlString);
+                    FileUtils.copyURLToFile(url, file);
+                }
             }
 
         }
