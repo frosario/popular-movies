@@ -1,6 +1,7 @@
 package com.example.frosario.popularmovies;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -12,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MovieProvider extends ContentProvider {
     private SQLiteDatabase db;
@@ -77,8 +80,23 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        String[] columns = {"id", "poster_path", "popularity", "vote_average"};
-        return db.query("movies", columns, null, null, null, null, null, "20");
+        if (uri.getPath().equals("/")) {
+            String[] columns = {"id", "poster_path", "popularity", "vote_average"};
+            return db.query("movies", columns, null, null, null, null, null, "20");
+
+        } else {
+            Pattern pattern = Pattern.compile("/movie/\\d+");
+            Matcher matcher = pattern.matcher(uri.getPath());
+
+            if (matcher.find()) {
+                String id = uri.getPath().split("/")[2];
+                String[] columns = {"title", "poster_path", "overview", "vote_average", "release_date"};
+                String selectionID = "id=" + id;
+                return db.query("movies", columns, selectionID, null, null, null, null, "1");
+            }
+        }
+
+        throw new UnsupportedOperationException("Call to unsupported path");
     }
 
     @Override

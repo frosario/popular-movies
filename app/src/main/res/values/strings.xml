@@ -5,4 +5,5 @@
     <string name="api_key">API Key:</string>
     <string name="save_button">Save</string>
     <string name="api_help_text">To use the app, you\'ll need your own API Key. For information on obtaining a key, please visit: <a href="https://www.themoviedb.org/faq/api">The_MovieDB_FAQ</a></string>
+    <string name="title_activity_details">Popular Movie Details</string>
 </resources>

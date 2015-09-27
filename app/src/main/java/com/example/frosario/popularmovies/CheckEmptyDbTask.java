@@ -13,6 +13,8 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 public class CheckEmptyDbTask extends AsyncTask {
     private Context context;
     private GridView gridView;
@@ -49,7 +51,7 @@ public class CheckEmptyDbTask extends AsyncTask {
 
     private boolean hasEmptyDB() {
         Boolean empty;
-        String uri_string = "content://com.example.frosario.popularmovies/posters";
+        String uri_string = "content://com.example.frosario.popularmovies/";
         Uri uri = Uri.parse(uri_string);
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
 
@@ -68,11 +70,14 @@ public class CheckEmptyDbTask extends AsyncTask {
     private void connectAdapter(GridView posterGrid) {
         posterGrid.setAdapter(new ImageAdapter(context));
         posterGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Toast.makeText(context, "" + position,
-                        Toast.LENGTH_SHORT).show();
+
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Intent intent = new Intent(context,com.example.frosario.popularmovies.DetailsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("id", id);
+                context.startActivity(intent);
             }
+
         });
     }
 }

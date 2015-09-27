@@ -26,7 +26,7 @@ public class ImageAdapter extends BaseAdapter {
         mContext = context;
 
         //Query MovieProvider
-        String uri_string = "content://com.example.frosario.popularmovies/posters";
+        String uri_string = "content://com.example.frosario.popularmovies/";
         Uri uri = Uri.parse(uri_string);
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         Integer column_id = cursor.getColumnIndexOrThrow("id");
