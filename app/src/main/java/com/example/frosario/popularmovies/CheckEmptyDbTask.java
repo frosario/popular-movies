@@ -54,7 +54,7 @@ public class CheckEmptyDbTask extends AsyncTask {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    private boolean hasEmptyDB() {
+    protected boolean hasEmptyDB() {
         Boolean empty;
         String uri_string = "content://com.example.frosario.popularmovies/";
         Uri uri = Uri.parse(uri_string);
@@ -72,7 +72,7 @@ public class CheckEmptyDbTask extends AsyncTask {
         return empty;
     }
 
-    private void connectAdapter(GridView posterGrid) {
+    protected void connectAdapter(GridView posterGrid) {
         posterGrid.setAdapter(new ImageAdapter(context));
         posterGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
