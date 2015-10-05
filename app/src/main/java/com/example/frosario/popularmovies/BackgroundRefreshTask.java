@@ -14,13 +14,13 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
-public class CheckEmptyDbTask extends AsyncTask {
+public class BackgroundRefreshTask extends AsyncTask {
     private Context context;
     private GridView gridView;
     private ProgressBar progressBar;
-    private String TAG = "CheckEmptyDbTask";
+    private String TAG = "BackgroundRefreshTask";
 
-    public CheckEmptyDbTask(Context c, GridView gv, ProgressBar pb) {
+    public BackgroundRefreshTask(Context c, GridView gv, ProgressBar pb) {
         context = c;
         gridView = gv;
         progressBar = pb;
@@ -29,7 +29,7 @@ public class CheckEmptyDbTask extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] params) {
         if (hasEmptyDB()) {
-            Log.i(TAG, "Database empty. Performing initial sync");
+            Log.i(TAG, "Database empty. Refreshing data.");
             Intent intent = new Intent(context,com.example.frosario.popularmovies.SyncService.class);
 
             String file = context.getString(R.string.shared_preferences);
@@ -50,7 +50,7 @@ public class CheckEmptyDbTask extends AsyncTask {
 
     @Override
     protected void onPostExecute(Object o) {
-        connectAdapter(gridView);
+        connectAdapter();
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -72,9 +72,9 @@ public class CheckEmptyDbTask extends AsyncTask {
         return empty;
     }
 
-    protected void connectAdapter(GridView posterGrid) {
-        posterGrid.setAdapter(new ImageAdapter(context));
-        posterGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    protected void connectAdapter() {
+        gridView.setAdapter(new ImageAdapter(context));
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Intent intent = new Intent(context, com.example.frosario.popularmovies.DetailsActivity.class);
@@ -84,5 +84,6 @@ public class CheckEmptyDbTask extends AsyncTask {
             }
 
         });
+        progressBar.setVisibility(View.INVISIBLE);
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
@@ -27,16 +28,22 @@ public class Utility {
         }
     }
 
-    public static void checkForEmptyDB(Context context, GridView gv, ProgressBar pb) {
-        CheckEmptyDbTask checkEmptyDbTask = new CheckEmptyDbTask(context, gv, pb);
+    public static void refreshDatabase(Context context, GridView gv, ProgressBar pb) {
+        //Empty the database
+        String uri_string = "content://com.example.frosario.popularmovies/";
+        Uri uri = Uri.parse(uri_string);
+        String[] selection = {};
+        context.getContentResolver().delete(uri, "", selection);
+
+        BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
 
         if (isNetworkAvailable(context)) {
             Object[] params = {};
-            checkEmptyDbTask.execute(params);
+            backgroundRefreshTask.execute(params);
         } else {
             networkNotAvailableToast(context);
-            if (!checkEmptyDbTask.hasEmptyDB()) {
-                checkEmptyDbTask.connectAdapter(gv);
+            if (!backgroundRefreshTask.hasEmptyDB()) {
+                backgroundRefreshTask.connectAdapter();
                 pb.setVisibility(View.INVISIBLE);
             }
         }

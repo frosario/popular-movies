@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,9 +29,24 @@ public class MainActivity extends AppCompatActivity {
 
         gridView = (GridView)findViewById(R.id.gridView);
         progressBar = (ProgressBar) findViewById(R.id.spinner);
-        Utility.checkForEmptyApiKey(this,sharedPrefs);
-        Utility.checkForEmptyDB(this,gridView,progressBar);
+        Utility.checkForEmptyApiKey(this, sharedPrefs);
 
+        //Only refresh database when the app is launched
+        try {
+            String caller = this.getCallingActivity().getClassName();
+            String thisClass = "com.example.frosario.popularmovies.MainActivity";
+
+            if (!caller.equals(thisClass)) {
+                Utility.refreshDatabase(this, gridView, progressBar);
+            } else {
+                BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(this, gridView, progressBar);
+                backgroundRefreshTask.connectAdapter();
+
+            }
+
+        } catch (RuntimeException e) {
+            Utility.refreshDatabase(this, gridView, progressBar);
+        }
 
         //Set default sorting preference if missing
         String currentSort = sharedPrefs.getString("currentSort", "");
@@ -80,14 +96,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        //Empty DB
-        String uri_string = "content://com.example.frosario.popularmovies/";
-        Uri uri = Uri.parse(uri_string);
-        String[] selection = {};
-        this.getContentResolver().delete(uri, "", selection);
-
-        //Set spinner and update db
         progressBar.setVisibility(View.VISIBLE);
-        Utility.checkForEmptyDB(this, gridView, progressBar);
+        gridView.setOnItemClickListener(null);
+        Utility.refreshDatabase(this, gridView, progressBar);
     }
 }
