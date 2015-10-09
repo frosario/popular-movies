@@ -8,24 +8,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Iterator;
 
 public class SyncService extends IntentService {
     public final String TAG = "SyncService";
@@ -39,26 +34,47 @@ public class SyncService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String file = this.getString(R.string.shared_preferences);
         sharedPrefs = getSharedPreferences(file,Context.MODE_PRIVATE);
-        URL apiUrl;
+        URL apiUrl = null;
+        String resolverString = "content://com.example.frosario.popularmovies";
+        String data = "";
+        long movie_id = -1;
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            String sortPref = extras.getString("sortPreference");
-            apiUrl = buildApiUrl(sortPref);
+            data = extras.getString("data");
+
+            switch (data){
+                case "movies":
+                    String sortPref = extras.getString("sortPreference");
+                    apiUrl = buildMovieApiUrl(sortPref);
+                    resolverString += "/movies";
+                    break;
+
+                case "trailers":
+                    movie_id = extras.getLong("movie_id");
+                    apiUrl = buildTrailerApiURL(movie_id);
+                    resolverString += "/trailers";
+                    break;
+            }
+
         } else {
-            apiUrl = buildApiUrl(null);
+            apiUrl = buildMovieApiUrl(null);
         }
 
-        Uri resolverUri = Uri.parse("content://com.example.frosario.popularmovies/");
+        Uri resolverUri = Uri.parse(resolverString);
 
         try {
-            JSONObject moviesJson = queryApi(apiUrl);
-            Log.d(TAG,"Peformed API call to: " + apiUrl.toString());
-            JSONArray results = (JSONArray) moviesJson.get("results");
-            downloadMoviePosters(results);
-            String stringResults = moviesJson.getString("results");
+            JSONObject apiJson = queryApi(apiUrl);
+            Log.d(TAG, "Peformed API call to: " + apiUrl.toString());
+
+            if (data.equals("trailers")) { movie_id = apiJson.getLong("id"); }
+            JSONArray resultsJsonArray = (JSONArray) apiJson.get("results");
+            if (data.equals("movies")) { downloadMoviePosters(resultsJsonArray); }
+            String resultsString = apiJson.getString("results");
+
             ContentValues contentValues = new ContentValues();
-            contentValues.put("results",stringResults);
+            if (data.equals("trailers")) { contentValues.put("movie_id",movie_id); }
+            contentValues.put("results",resultsString);
             this.getContentResolver().insert(resolverUri, contentValues);
 
         } catch (Exception e) {
@@ -66,7 +82,7 @@ public class SyncService extends IntentService {
         }
     }
 
-    private URL buildApiUrl(String sortBy) {
+    private URL buildMovieApiUrl(String sortBy) {
         URL url = null;
         String SORT_BY_POPULARITY_PARAM = null;
         String api_key = sharedPrefs.getString("API_Key",null);
@@ -89,6 +105,21 @@ public class SyncService extends IntentService {
         String url_string = API_URL + "?" + SORT_BY_POPULARITY_PARAM + "&" + API_PARAM;
 
         //Parse url string to url object
+        try {
+            url = new URL(url_string);
+        } catch (java.net.MalformedURLException e) {
+            Log.e(TAG, "Malformed URL: " + url_string);
+        }
+
+        return url;
+    }
+
+    private URL buildTrailerApiURL(long movie_id_number) {
+        URL url = null;
+        String api_key = sharedPrefs.getString("API_Key",null);
+        String url_string = "http://api.themoviedb.org/3/movie/" + String.valueOf(movie_id_number) +
+                            "/videos?api_key=" + api_key;
+
         try {
             url = new URL(url_string);
         } catch (java.net.MalformedURLException e) {

@@ -5,13 +5,8 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.json.JSONObject;
-
 import java.io.File;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -28,8 +23,9 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
         String outputTitle = "";
         String outputPlot = "";
-        Long id = getIntent().getExtras().getLong("id");
-        String uri_string = "content://com.example.frosario.popularmovies/movie/" + id.toString();
+        Bundle extras = getIntent().getExtras();
+        long id = extras.getLong("id");
+        String uri_string = "content://com.example.frosario.popularmovies/movie/" + String.valueOf(id);
         Uri uri = Uri.parse(uri_string);
 
         //Query for movie details
@@ -46,7 +42,6 @@ public class DetailsActivity extends AppCompatActivity {
         outputTitle += "Release Date:\n" + cursor.getString(column_release_date) + "\n\n";
         outputTitle += "User Rating:\n" + cursor.getString(column_vote_average) + "\n\n";
         outputPlot += "Plot:\n" + cursor.getString(column_overview) + "\n";
-
 
         //Update the text
         TextView titleView = (TextView) findViewById(R.id.title);

@@ -2,10 +2,8 @@ package com.example.frosario.popularmovies;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,15 +35,14 @@ public class MainActivity extends AppCompatActivity {
             String thisClass = "com.example.frosario.popularmovies.MainActivity";
 
             if (!caller.equals(thisClass)) {
-                Utility.refreshDatabase(this, gridView, progressBar);
+                Utility.refreshMovies(this, gridView, progressBar);
             } else {
-                BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(this, gridView, progressBar);
-                backgroundRefreshTask.connectAdapter();
+                Utility.connectGridViewAdapter(this, gridView, progressBar);
 
             }
 
         } catch (RuntimeException e) {
-            Utility.refreshDatabase(this, gridView, progressBar);
+            Utility.refreshMovies(this, gridView, progressBar);
         }
 
         //Set default sorting preference if missing
@@ -80,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("currentSort", "ratings");
                     editor.apply();
                     updateUI();
-                } else
+                } else {
                     editor.putString("currentSort", "popularity");
                     editor.apply();
                     updateUI();
-
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -98,6 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
         gridView.setOnItemClickListener(null);
-        Utility.refreshDatabase(this, gridView, progressBar);
+        Utility.refreshMovies(this, gridView, progressBar);
     }
 }

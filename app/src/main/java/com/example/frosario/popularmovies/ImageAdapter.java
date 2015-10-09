@@ -25,7 +25,7 @@ public class ImageAdapter extends BaseAdapter {
         mContext = context;
 
         //Query MovieProvider
-        String uri_string = "content://com.example.frosario.popularmovies/";
+        String uri_string = "content://com.example.frosario.popularmovies/movies";
         Uri uri = Uri.parse(uri_string);
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         Integer column_id = cursor.getColumnIndexOrThrow("id");
@@ -39,7 +39,7 @@ public class ImageAdapter extends BaseAdapter {
             //Build movies hashmap
             HashMap hashMap = new HashMap();
             Long id = cursor.getLong(column_id);
-            hashMap.put("id", id);
+            hashMap.put("movie_id", id);
             hashMap.put("poster_path", cursor.getString(column_poster_path));
             hashMap.put("popularity", cursor.getFloat(column_popularity));
             hashMap.put("vote_average", cursor.getFloat(column_vote_average));
@@ -64,7 +64,7 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         HashMap movie = (HashMap) getMovieByPosition(position);
-        return (Long) movie.get("id");
+        return (Long) movie.get("movie_id");
     }
 
     @Override
