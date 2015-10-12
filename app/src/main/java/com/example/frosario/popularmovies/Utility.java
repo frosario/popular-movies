@@ -7,15 +7,20 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utility {
+    static String TAG = "Utility";
+
     public static void networkNotAvailableToast(Context context){
         String message = "Network not available, please try again later";
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -53,8 +58,8 @@ public class Utility {
         }
     }
 
-    public static void refreshTrailers(Context context, TextView textView, Long id) {
-        BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, textView);
+    public static void refreshTrailers(Context context, RelativeLayout relativeLayout, Long id) {
+        BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, relativeLayout);
         List paramsList = new ArrayList();
         paramsList.add("trailers");
         if (id != null) { paramsList.add(id); }
@@ -118,25 +123,6 @@ public class Utility {
         }
 
         return missing;
-    }
-
-    public static void displayTrailerLinks(long id, Context context, TextView textView){
-        String uri_string = "content://com.example.frosario.popularmovies/trailers/" + String.valueOf(id);
-        Uri uri = Uri.parse(uri_string);
-        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-        String text = "";
-
-        while (cursor.moveToNext()) {
-            Integer column_name = cursor.getColumnIndexOrThrow("name");
-            Integer column_key = cursor.getColumnIndexOrThrow("key");
-            String name = cursor.getString(column_name);
-            String key = cursor.getString(column_key);
-            String href = "<a href=\"" + "https://www.youtube.com/watch?v=" + key + "\">" + name + "</a>";
-            text += href + "\n";
-        }
-
-        //TODO: Iterate over curser and set links to fire youtube events
-        textView.setText(text);
     }
 
 }

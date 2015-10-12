@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class DetailsActivityFragment extends Fragment {
@@ -18,17 +19,19 @@ public class DetailsActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_details, container, false);
-        TextView textView = (TextView) view.findViewById(R.id.trailers);
+        RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.fragment_details);
+
         Bundle extras = getActivity().getIntent().getExtras();
         long id = extras.getLong("id");
         String TAG = "DetailsActivityFragment";
 
         if (Utility.hasEmptyTable(this.getContext(), "trailers")) {
-            Utility.refreshTrailers(this.getContext(), textView, id);
+            Utility.refreshTrailers(this.getContext(), relativeLayout, id);
         } else {
-            Utility.displayTrailerLinks(id,this.getContext(),textView);
+            BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(this.getContext(), relativeLayout);
+            backgroundRefreshTask.displayTrailerLinks(id, relativeLayout);
         }
-        
+
         return view;
     }
 }

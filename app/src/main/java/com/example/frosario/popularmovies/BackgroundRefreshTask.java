@@ -1,26 +1,28 @@
 package com.example.frosario.popularmovies;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.List;
 
 public class BackgroundRefreshTask extends AsyncTask {
     private Context context;
     private GridView gridView;
     private ProgressBar progressBar;
-    private TextView textView;
+    private RelativeLayout relativeLayout;
     private String TAG = "BackgroundRefreshTask";
 
     public BackgroundRefreshTask(Context c, GridView gv, ProgressBar pb) {
@@ -30,10 +32,10 @@ public class BackgroundRefreshTask extends AsyncTask {
         progressBar = pb;
     }
 
-    public BackgroundRefreshTask(Context c, TextView tv) {
+    public BackgroundRefreshTask(Context c, RelativeLayout rl) {
         //This constructor used when refreshing with new trailers
         context = c;
-        textView = tv;
+        relativeLayout = rl;
     }
 
     @Override
@@ -82,7 +84,6 @@ public class BackgroundRefreshTask extends AsyncTask {
                 //Query for all movies id's, iterate over each to get all trailers
                 Uri uri = Uri.parse("content://com.example.frosario.popularmovies/movies");
                 Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                cursor.moveToFirst();
 
                 while (cursor.moveToNext()) {
                     int column_id = cursor.getColumnIndex("id");
@@ -104,7 +105,7 @@ public class BackgroundRefreshTask extends AsyncTask {
         if (movieID != null) {
             //Async call to sleep waiting for trailers to refresh
             int attempts = 0;
-            while (Utility.movieMissingTrailer(movieID,context) && attempts < 3) {
+            while (Utility.movieMissingTrailer(movieID,context) && attempts < 1) {
                 attempts += 1;
                 Log.d(TAG, "Waiting on trailers for movie: " + String.valueOf(movieID));
                 SystemClock.sleep(10000);
@@ -143,7 +144,7 @@ public class BackgroundRefreshTask extends AsyncTask {
             }
         } else if (object.getClass().equals(Long.class)) {
             long movieID = (Long) object;
-            Utility.displayTrailerLinks(movieID,context,textView);
+            displayTrailerLinks(movieID, relativeLayout);
         }
 
 
@@ -162,5 +163,64 @@ public class BackgroundRefreshTask extends AsyncTask {
 
         });
         progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    protected void displayTrailerLinks(long id, RelativeLayout relativeLayout){
+        //Get trailer info from MovieProvider
+        String uri_string = "content://com.example.frosario.popularmovies/trailers/" + String.valueOf(id);
+        Uri uri = Uri.parse(uri_string);
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+
+        //Prepare fragment_details for updates with trailer links
+        int belowThisId = R.id.trailers;
+        int wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int below = RelativeLayout.BELOW;
+
+        //Get rid of spinning gif
+        View spinningGif = relativeLayout.findViewById(R.id.trailerSpinner);
+        relativeLayout.removeView(spinningGif);
+
+        //Update with message if no trailers found
+        if (cursor.getCount() < 1) {
+            TextView textView = new TextView(context);
+            textView.setText("No trailers found");
+            RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(wrapContent,wrapContent);
+            relativeParams.addRule(below, belowThisId);
+            relativeLayout.addView(textView,relativeParams);
+            return;
+        }
+
+        //Create a new textview for each trailer returned
+        while (cursor.moveToNext()) {
+            Integer column_name = cursor.getColumnIndexOrThrow("name");
+            Integer column_key = cursor.getColumnIndexOrThrow("key");
+            final String name = cursor.getString(column_name);
+            final String key = cursor.getString(column_key);
+
+            //Create textview for the trailer
+            int viewId = View.generateViewId();
+            TextView textView = new TextView(context);
+            textView.setId(viewId);
+            textView.setText(name);
+            textView.setTextColor(Color.BLUE);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String youtubeLink = "https://www.youtube.com/watch?v=" + key;
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeLink));
+                    context.startActivity(intent);
+                }
+            });
+
+            //Add new textview to fragment_details
+            RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(wrapContent,wrapContent);
+            relativeParams.addRule(below, belowThisId);
+            relativeLayout.addView(textView, relativeParams);
+
+            //Update with last textview created
+            belowThisId = textView.getId();
+        }
+        
+        cursor.close();
     }
 }
