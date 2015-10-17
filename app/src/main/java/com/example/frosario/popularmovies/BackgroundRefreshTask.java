@@ -220,7 +220,7 @@ public class BackgroundRefreshTask extends AsyncTask {
             //Update with last textview created
             belowThisId = textView.getId();
         }
-        
+
         cursor.close();
     }
 }
