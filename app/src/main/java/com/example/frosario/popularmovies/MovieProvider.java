@@ -29,11 +29,14 @@ public class MovieProvider extends ContentProvider {
                 "backdrop_path VARCHAR," + "id LONG," + "release_date VARCHAR," + "poster_path VARCHAR," + "vote_count LONG," +
                 "genre_ids VARCHAR";
 
-        String TRAILER_COLUMN_DEFINITIONS = "movie_id LONG, key VARCAHR, name VARCHAR, site VARCHAR, size INT, type VARCHAR," +
-                "id Long, iso_639_1 CHAR(2)";
+        String TRAILER_COLUMN_DEFINITIONS = "movie_id LONG, key VARCHAR, name VARCHAR, site VARCHAR, size INT, type VARCHAR, " +
+                "id LONG, iso_639_1 CHAR(2)";
+
+        String REVIEW_COLUMN_DEFINITIONS = "movie_id LONG, author VARCHAR, content VARCHAR, id LONG, url VARCHAR";
 
         db.execSQL("CREATE TABLE IF NOT EXISTS movies (" + MOVIE_COLUMN_DEFINITIONS + ")");
         db.execSQL("CREATE TABLE IF NOT EXISTS trailers (" + TRAILER_COLUMN_DEFINITIONS + ")");
+        db.execSQL("CREATE TABLE IF NOT EXISTS reviews (" + REVIEW_COLUMN_DEFINITIONS + ")");
         return true;
     }
 
@@ -42,6 +45,7 @@ public class MovieProvider extends ContentProvider {
         //Empty out tables
         db.delete("movies",null,null);
         db.delete("trailers", null, null);
+        db.delete("reviews", null, null);
         Log.d(TAG, "All values in database deleted");
         return 0;
     }
@@ -61,17 +65,18 @@ public class MovieProvider extends ContentProvider {
         switch (uri.getPath()) {
             case "/movies": table = "movies"; break;
             case "/trailers": table = "trailers"; break;
+            case "/reviews": table = "reviews"; break;
             default: throw new UnsupportedOperationException();
         }
 
         try {
-            if (table.equals("trailers")) { movie_id = values.getAsLong("movie_id"); }
+            if (table.equals("trailers") || table.equals("reviews")) { movie_id = values.getAsLong("movie_id"); }
             JSONArray results = new JSONArray(values.getAsString("results"));
             if (table.equals("movies")) { db.delete(table, null, null); }
             db.beginTransaction();
 
             for (int i = 0; i < results.length(); i++) {
-                if (table.equals("trailers")) { cv.put("movie_id", movie_id); }
+                if (table.equals("trailers") || table.equals("reviews")) { cv.put("movie_id", movie_id); }
                 json = (JSONObject) results.get(i);
                 Iterator iterator = json.keys();
 
@@ -105,11 +110,17 @@ public class MovieProvider extends ContentProvider {
             String[] columns = {"movie_id", "key", "name"};
             return db.query("trailers", columns, null, null, null, null, null);
 
+        } else if (uri.getPath().equals("/reviews")) {
+            String[] columns = {"movie_id", "author", "url"};
+            return db.query("reviews", columns, null, null, null, null, null);
+
         } else {
             Pattern moviePattern = Pattern.compile("/movie/\\d+");
             Matcher movieMatcher = moviePattern.matcher(uri.getPath());
             Pattern trailersPattern = Pattern.compile("/trailers/\\d+");
             Matcher trailersMatcher = trailersPattern.matcher(uri.getPath());
+            Pattern reviewPattern = Pattern.compile("/reviews/\\d+");
+            Matcher reviewMatcher = reviewPattern.matcher(uri.getPath());
 
             if (movieMatcher.find()) {
                 String id = uri.getPath().split("/")[2];
@@ -123,6 +134,13 @@ public class MovieProvider extends ContentProvider {
                 String[] columns = {"key", "name"};
                 String selectionID = "movie_id=" + movie_id;
                 return db.query("trailers", columns, selectionID, null, null, null, null);
+            }
+
+            if (reviewMatcher.find()){
+                String movie_id = uri.getPath().split("/")[2];
+                String[] columns = {"author", "url"};
+                String selectionID = "movie_id=" + movie_id;
+                return db.query("reviews", columns, selectionID, null, null, null, null);
             }
         }
 

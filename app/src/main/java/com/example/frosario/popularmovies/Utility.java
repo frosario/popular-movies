@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -58,20 +59,6 @@ public class Utility {
         }
     }
 
-    public static void refreshTrailers(Context context, RelativeLayout relativeLayout, Long id) {
-        BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, relativeLayout);
-        List paramsList = new ArrayList();
-        paramsList.add("trailers");
-        if (id != null) { paramsList.add(id); }
-
-        if (isNetworkAvailable(context)) {
-            Object[] params = paramsList.toArray();
-            backgroundRefreshTask.execute(params);
-        } else {
-            networkNotAvailableToast(context);
-        }
-    }
-    
     public static void connectGridViewAdapter(Context context, GridView gv, ProgressBar pb){
         BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
         backgroundRefreshTask.connectAdapter();
@@ -106,9 +93,19 @@ public class Utility {
         return empty;
     }
 
-    public static boolean movieMissingTrailer(long id, Context context){
+    public static boolean movieMissingExtraData(String data, long id, Context context){
         boolean missing;
-        String uri_string = "content://com.example.frosario.popularmovies/trailers/";
+        String uri_string = "";
+
+        switch (data) {
+            case "trailers":
+                uri_string = "content://com.example.frosario.popularmovies/trailers/";
+                break;
+            case "reviews":
+                uri_string = "content://com.example.frosario.popularmovies/reviews/";
+                break;
+        }
+
         uri_string += String.valueOf(id);
         Uri uri = Uri.parse(uri_string);
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);

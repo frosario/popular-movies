@@ -11,6 +11,9 @@ import java.io.File;
 
 public class DetailsActivity extends AppCompatActivity {
     private String TAG = "DetailsActivity";
+    private String outputTitle = "";
+    private String outputPlot = "";
+    private File imageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,11 +24,17 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String outputTitle = "";
-        String outputPlot = "";
         Bundle extras = getIntent().getExtras();
         long id = extras.getLong("id");
-        String uri_string = "content://com.example.frosario.popularmovies/movie/" + String.valueOf(id);
+
+        getMovieDetails(id);
+        setMovieThumbnail();
+        updateTextViews();
+    }
+
+    private void getMovieDetails(long movieID) {
+        //Setup URI for MovieProvider
+        String uri_string = "content://com.example.frosario.popularmovies/movie/" + String.valueOf(movieID);
         Uri uri = Uri.parse(uri_string);
 
         //Query for movie details
@@ -43,25 +52,30 @@ public class DetailsActivity extends AppCompatActivity {
         outputTitle += "User Rating:\n" + cursor.getString(column_vote_average) + "\n\n";
         outputPlot += "Plot:\n" + cursor.getString(column_overview) + "\n";
 
-        //Update the text
-        TextView titleView = (TextView) findViewById(R.id.title);
-        titleView.setText(outputTitle);
-        TextView plotView = (TextView) findViewById(R.id.plot);
-        plotView.setText(outputPlot);
+        //Find poster thumbnail
+        imageFile = new File(getFilesDir(), cursor.getString(column_poster_path));
 
-        //Set poster thumbnail
+        cursor.close();
+    }
+
+    private void setMovieThumbnail() {
         ImageView imageView = (ImageView) findViewById(R.id.thumbnail);
-        File file = new File(getFilesDir(), cursor.getString(column_poster_path));
 
-        if (file.exists()) {
-            Uri fileUri = Uri.parse("file://" + file.toString());
+        if (imageFile.exists()) {
+            Uri fileUri = Uri.parse("file://" + imageFile.toString());
             imageView.setImageURI(fileUri);
         } else {
-            Log.d(TAG,"Poster image not found: " + file.toString());
+            Log.d(TAG,"Poster image not found: " + imageFile.toString());
             imageView.setImageResource(R.drawable.no_poster);
         }
 
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        cursor.close();
+    }
+
+    private void updateTextViews(){
+        TextView titleView = (TextView) findViewById(R.id.title);
+        titleView.setText(outputTitle);
+        TextView plotView = (TextView) findViewById(R.id.plot);
+        plotView.setText(outputPlot);
     }
 }

@@ -55,6 +55,15 @@ public class SyncService extends IntentService {
                     apiUrl = buildTrailerApiURL(movie_id);
                     resolverString += "/trailers";
                     break;
+
+                case "reviews":
+                    movie_id = extras.getLong("movie_id");
+                    apiUrl = buildReviewApiURL(movie_id);
+                    resolverString += "/reviews";
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException("Unsupported data sync");
             }
 
         } else {
@@ -65,15 +74,15 @@ public class SyncService extends IntentService {
 
         try {
             JSONObject apiJson = queryApi(apiUrl);
-            Log.d(TAG, "Peformed API call to: " + apiUrl.toString());
+            Log.d(TAG, "Performed API call to: " + apiUrl.toString());
 
-            if (data.equals("trailers")) { movie_id = apiJson.getLong("id"); }
+            if (data.equals("trailers") || data.equals("reviews")) { movie_id = apiJson.getLong("id"); }
             JSONArray resultsJsonArray = (JSONArray) apiJson.get("results");
             if (data.equals("movies")) { downloadMoviePosters(resultsJsonArray); }
             String resultsString = apiJson.getString("results");
 
             ContentValues contentValues = new ContentValues();
-            if (data.equals("trailers")) { contentValues.put("movie_id",movie_id); }
+            if (data.equals("trailers") || data.equals("reviews")) { contentValues.put("movie_id",movie_id); }
             contentValues.put("results",resultsString);
             this.getContentResolver().insert(resolverUri, contentValues);
 
@@ -115,10 +124,27 @@ public class SyncService extends IntentService {
     }
 
     private URL buildTrailerApiURL(long movie_id_number) {
+        Log.d(TAG,"Building trailer api");
         URL url = null;
         String api_key = sharedPrefs.getString("API_Key",null);
         String url_string = "http://api.themoviedb.org/3/movie/" + String.valueOf(movie_id_number) +
                             "/videos?api_key=" + api_key;
+
+        try {
+            url = new URL(url_string);
+        } catch (java.net.MalformedURLException e) {
+            Log.e(TAG, "Malformed URL: " + url_string);
+        }
+
+        return url;
+    }
+
+    private URL buildReviewApiURL(long movie_id_number) {
+        Log.d(TAG,"Building review api");
+        URL url = null;
+        String api_key = sharedPrefs.getString("API_Key",null);
+        String url_string = "http://api.themoviedb.org/3/movie/" + String.valueOf(movie_id_number) +
+                "/reviews?api_key=" + api_key;
 
         try {
             url = new URL(url_string);
