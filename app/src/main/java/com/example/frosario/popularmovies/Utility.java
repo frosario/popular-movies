@@ -17,7 +17,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class Utility {
     static String TAG = "Utility";
@@ -121,5 +123,29 @@ public class Utility {
 
         return missing;
     }
+
+    public static SharedPreferences getSharedPrefs(Context context) {
+        String file = context.getString(R.string.shared_preferences);
+        SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
+        return sp;
+    }
+
+
+
+
+
+
+
+
+
+
+
+//    public static Set loadFavorites(Context context) {
+//        Set favs = null;
+//        SharedPreferences sharedPrefs = this.getSharedPreferences(file, Context.MODE_PRIVATE);;
+//
+//
+//        return favs;
+//    }
 
 }

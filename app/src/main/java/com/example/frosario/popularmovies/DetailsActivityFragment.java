@@ -59,7 +59,7 @@ public class DetailsActivityFragment extends Fragment {
             } else {
                 Utility.networkNotAvailableToast(context);
             }
-            
+
         } else {
             BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, trailerLayout, reviewLayout, progressbarTrailers, progressbarReviews);
             backgroundRefreshTask.displayTrailerLinks(id);

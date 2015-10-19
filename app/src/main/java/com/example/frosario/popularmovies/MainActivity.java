@@ -21,8 +21,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String file = this.getString(R.string.shared_preferences);
-        sharedPrefs = this.getSharedPreferences(file, Context.MODE_PRIVATE);
+        sharedPrefs = Utility.getSharedPrefs(this);
         editor = sharedPrefs.edit();
 
         gridView = (GridView)findViewById(R.id.gridView);

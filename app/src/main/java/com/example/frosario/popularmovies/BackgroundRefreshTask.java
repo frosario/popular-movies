@@ -76,8 +76,7 @@ public class BackgroundRefreshTask extends AsyncTask {
                 Intent intent = new Intent(context, com.example.frosario.popularmovies.SyncService.class);
                 intent.putExtra("data","movies");
 
-                String file = context.getString(R.string.shared_preferences);
-                SharedPreferences sharedPrefs = context.getSharedPreferences(file, Context.MODE_PRIVATE);
+                SharedPreferences sharedPrefs = Utility.getSharedPrefs(context);
                 String currentSort = sharedPrefs.getString("currentSort", null);
 
                 if (currentSort != null) {

@@ -25,8 +25,7 @@ public class ApiKeyActivity extends AppCompatActivity {
         String apiKey = t.getText().toString();
 
         if (String.valueOf(R.id.textApiKeyString).length() > 0) {
-            String file = this.getString(R.string.shared_preferences);
-            SharedPreferences sharedPrefs = getSharedPreferences(file,MODE_PRIVATE);
+            SharedPreferences sharedPrefs = Utility.getSharedPrefs(this);
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putString("API_Key", apiKey);
             editor.apply();

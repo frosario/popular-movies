@@ -19,10 +19,8 @@ public class ApiKeyActivityFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        String file = this.getString(R.string.shared_preferences);
-        sharedPrefs = getActivity().getSharedPreferences(file,Context.MODE_PRIVATE);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        sharedPrefs = Utility.getSharedPrefs(getContext());
         return inflater.inflate(R.layout.fragment_api_key, container, false);
     }
 

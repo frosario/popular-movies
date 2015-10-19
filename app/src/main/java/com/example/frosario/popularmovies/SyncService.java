@@ -32,8 +32,7 @@ public class SyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String file = this.getString(R.string.shared_preferences);
-        sharedPrefs = getSharedPreferences(file,Context.MODE_PRIVATE);
+        sharedPrefs = Utility.getSharedPrefs(this);
         URL apiUrl = null;
         String resolverString = "content://com.example.frosario.popularmovies";
         String data = "";
