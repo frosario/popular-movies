@@ -7,17 +7,14 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.util.Log;
+import android.util.ArraySet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -130,22 +127,21 @@ public class Utility {
         return sp;
     }
 
+    public static List<String> loadFavorites(Context context) {
+        Set<String> sp = null;
+        List<String> list = new ArrayList<>();
+        SharedPreferences sharedPrefs = getSharedPrefs(context);
+        sp = sharedPrefs.getStringSet("favorites", new HashSet<String>());
+        list = new ArrayList<>(sp);
+        return list;
+    }
 
-
-
-
-
-
-
-
-
-
-//    public static Set loadFavorites(Context context) {
-//        Set favs = null;
-//        SharedPreferences sharedPrefs = this.getSharedPreferences(file, Context.MODE_PRIVATE);;
-//
-//
-//        return favs;
-//    }
+    public static void saveFavorites(Context context, List favorites) {
+        Set<String> favoriteSet = new HashSet<>(favorites);
+        SharedPreferences sharedPrefs = getSharedPrefs(context);
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putStringSet("favorites",favoriteSet);
+        editor.apply();
+    }
 
 }
