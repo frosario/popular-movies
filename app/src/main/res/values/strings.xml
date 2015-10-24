@@ -10,4 +10,8 @@
     <string name="reviews">Reviews:</string>
     <string name="add_to_favorites">Add To Favorites</string>
     <string name="remove_from_favorites">Remove From Favorites</string>
+    <string name="refresh">Refresh</string>
+    <string name="sort_by_ratings">"Sort By Ratings"</string>
+    <string name="sort_by_popularity">"Sort By Popularity"</string>
+    <string name="sort_by_favorites">"Sort By Favorites"</string>
 </resources>

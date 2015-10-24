@@ -7,12 +7,9 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.util.ArraySet;
-import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,29 +35,37 @@ public class Utility {
     }
 
     public static void refreshMovies(Context context, GridView gv, ProgressBar pb) {
-        //Empty the database
-        String uri_string = "content://com.example.frosario.popularmovies/";
-        Uri uri = Uri.parse(uri_string);
-        String[] selection = {};
-        context.getContentResolver().delete(uri, "", selection);
-
-        BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
-
         if (isNetworkAvailable(context)) {
+            //Empty the database
+            String uri_string = "content://com.example.frosario.popularmovies/";
+            Uri uri = Uri.parse(uri_string);
+            String[] selection = {};
+            context.getContentResolver().delete(uri, "", selection);
+
+            BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
             Object[] params = {"movies"};
             backgroundRefreshTask.execute(params);
+
         } else {
             networkNotAvailableToast(context);
-            if (!hasEmptyTable(context,"movies")) {
-                backgroundRefreshTask.connectAdapter();
-                pb.setVisibility(View.INVISIBLE);
-            }
+        }
+    }
+
+    public static void displayFavoriteMovies(Context context, GridView gv, ProgressBar pb) {
+        if (isNetworkAvailable(context)) {
+            //TODO: User might go straight for this option, ensure trailers and reviews are not empty
+
+            BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
+            backgroundRefreshTask.connectAdapter("favorites");
+
+        } else {
+            networkNotAvailableToast(context);
         }
     }
 
     public static void connectGridViewAdapter(Context context, GridView gv, ProgressBar pb){
         BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
-        backgroundRefreshTask.connectAdapter();
+        backgroundRefreshTask.connectAdapter("popular");
     }
 
     public static void checkForEmptyApiKey(Context c,SharedPreferences sp) {
@@ -123,8 +128,7 @@ public class Utility {
 
     public static SharedPreferences getSharedPrefs(Context context) {
         String file = context.getString(R.string.shared_preferences);
-        SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
-        return sp;
+        return context.getSharedPreferences(file, Context.MODE_PRIVATE);
     }
 
     public static List<String> loadFavorites(Context context) {

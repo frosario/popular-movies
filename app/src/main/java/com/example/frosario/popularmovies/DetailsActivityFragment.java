@@ -17,7 +17,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DetailsActivityFragment extends Fragment {
     private String TAG = "DetailsActivityFragment";
@@ -151,10 +150,12 @@ public class DetailsActivityFragment extends Fragment {
                 if (isFavorite) {
                     favorites.remove(stringID);
                     favoritesButton.setText(R.string.add_to_favorites);
+                    isFavorite = false;
 
                 } else {
                     favorites.add(stringID);
                     favoritesButton.setText(R.string.remove_from_favorites);
+                    isFavorite = true;
                 }
 
                 Utility.saveFavorites(context,favorites);

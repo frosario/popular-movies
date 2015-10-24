@@ -1,6 +1,5 @@
 package com.example.frosario.popularmovies;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,11 +10,11 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity {
-    String TAG = "MainActivity";
-    SharedPreferences sharedPrefs;
-    SharedPreferences.Editor editor;
-    static GridView gridView;
-    static ProgressBar progressBar;
+    private String TAG = "MainActivity";
+    private SharedPreferences sharedPrefs;
+    private  SharedPreferences.Editor editor;
+    private static GridView gridView;
+    private static ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,39 +60,48 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        String sort = sharedPrefs.getString("currentSort", null);
 
         switch (id) {
             case R.id.action_settings:
                 Utility.startApiKeyActivity(this);
                 break;
-            case R.id.sync:
-                updateUI();
+            case R.id.refresh:
+                String currentSort = sharedPrefs.getString("currentSort", null);
+                updateUI(currentSort);
                 break;
-            case R.id.sort:
-                //Toggle to sort by other metric
-                if (sort.equals("popularity")) {
-                    editor.putString("currentSort", "ratings");
-                    editor.apply();
-                    updateUI();
-                } else {
-                    editor.putString("currentSort", "popularity");
-                    editor.apply();
-                    updateUI();
-                }
+
+            case R.id.sort_ratings:
+                updateUI("ratings");
                 break;
+
+            case R.id.sort_popularity:
+                updateUI("popularity");
+                break;
+
+            case R.id.sort_favorites:
+                updateUI("favorites");
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateUI() {
+    private void updateUI(String sortCriteria) {
         if (!Utility.isNetworkAvailable(this)) {
             Utility.networkNotAvailableToast(this);
             return;
         }
 
+        editor.putString("currentSort", sortCriteria);
+        editor.apply();
+
         progressBar.setVisibility(View.VISIBLE);
         gridView.setOnItemClickListener(null);
-        Utility.refreshMovies(this, gridView, progressBar);
+
+        if (!sortCriteria.equals("favorites")) {
+            Utility.refreshMovies(this, gridView, progressBar);
+        } else {
+            Utility.displayFavoriteMovies(this,gridView,progressBar);
+        }
     }
 }

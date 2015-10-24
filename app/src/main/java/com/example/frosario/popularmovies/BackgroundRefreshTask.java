@@ -13,11 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,6 +54,7 @@ public class BackgroundRefreshTask extends AsyncTask {
         {"trailers",movie_id_number_here}
         {"reviews"}
         {"reviews",movie_id_number_here}
+        {"favorites"}
         */
 
         String table = null;
@@ -190,7 +189,7 @@ public class BackgroundRefreshTask extends AsyncTask {
         if (object.getClass().equals(String.class)) {
             table = object.toString();
             if (table.equals("movies")) {
-                connectAdapter();
+                connectAdapter("popular");
                 progressBar.setVisibility(View.INVISIBLE);
             }
 
@@ -213,12 +212,22 @@ public class BackgroundRefreshTask extends AsyncTask {
                     break;
             }
         }
-
-
     }
 
-    protected void connectAdapter() {
-        gridView.setAdapter(new ImageAdapter(context));
+    protected void connectAdapter(String purpose) {
+        switch (purpose) {
+            case "popular":
+                gridView.setAdapter(new MovieAdapter(context));
+                break;
+
+            case "favorites":
+                gridView.setAdapter(new MovieAdapter(context, "favorites"));
+                break;
+
+            default:
+                throw new  UnsupportedOperationException("Purpose not supported");
+        }
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
