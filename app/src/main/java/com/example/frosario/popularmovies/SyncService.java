@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+@SuppressWarnings("WeakerAccess")
 public class SyncService extends IntentService {
     public final String TAG = "SyncService";
     private SharedPreferences sharedPrefs;
@@ -30,7 +31,7 @@ public class SyncService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         sharedPrefs = Utility.getSharedPrefs(this);
-        URL apiUrl = null;
+        URL apiUrl;
         String resolverString = "content://com.example.frosario.popularmovies";
         String data = "";
         long movie_id = -1;
@@ -39,6 +40,7 @@ public class SyncService extends IntentService {
         if (extras != null) {
             data = extras.getString("data");
 
+            //noinspection ConstantConditions
             switch (data){
                 case "movies":
                     String sortPref = extras.getString("sortPreference");
@@ -89,7 +91,7 @@ public class SyncService extends IntentService {
 
     private URL buildMovieApiUrl(String sortBy) {
         URL url = null;
-        String SORT_BY_POPULARITY_PARAM = null;
+        String SORT_BY_POPULARITY_PARAM;
         String api_key = sharedPrefs.getString("API_Key",null);
 
         //Build the url string for the API call

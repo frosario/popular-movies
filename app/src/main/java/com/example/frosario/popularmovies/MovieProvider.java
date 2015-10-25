@@ -60,7 +60,7 @@ public class MovieProvider extends ContentProvider {
         long movie_id = -1;
         JSONObject json;
         ContentValues cv = new ContentValues();
-        String table = "";
+        String table;
 
         switch (uri.getPath()) {
             case "/movies": table = "movies"; break;

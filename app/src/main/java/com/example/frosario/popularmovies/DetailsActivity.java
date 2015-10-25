@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class DetailsActivity extends AppCompatActivity {
+    @SuppressWarnings("unused")
     private String TAG = "DetailsActivity";
 
     @Override

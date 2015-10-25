@@ -10,6 +10,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity {
+    @SuppressWarnings("unused")
     private String TAG = "MainActivity";
     private SharedPreferences sharedPrefs;
     private  SharedPreferences.Editor editor;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Only refresh database when the app is launched
         try {
+            //noinspection ConstantConditions
             String caller = this.getCallingActivity().getClassName();
             String thisClass = "com.example.frosario.popularmovies.MainActivity";
 

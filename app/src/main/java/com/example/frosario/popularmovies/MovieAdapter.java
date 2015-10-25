@@ -14,7 +14,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings({"unchecked", "CanBeFinal", "WeakerAccess"})
 public class MovieAdapter extends BaseAdapter {
+    @SuppressWarnings("FieldCanBeLocal")
     private String TAG = "MovieAdapter";
     private LinkedHashMap movies = new LinkedHashMap();
     private ArrayList<String> imageUrlArray = new ArrayList<>();
@@ -53,6 +55,7 @@ public class MovieAdapter extends BaseAdapter {
         cursor.close();
     }
 
+    @SuppressWarnings("SameParameterValue")
     public MovieAdapter(Context context, String purpose) {
         //Constructor to show subset like "favorites"
         super();
@@ -129,7 +132,7 @@ public class MovieAdapter extends BaseAdapter {
     }
 
     private Object getMovieByPosition(int p) {
-        Long id = null;
+        Long id;
         Set keySet = movies.keySet();
         Object[] keysArray = keySet.toArray();
 

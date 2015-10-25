@@ -21,7 +21,8 @@
         android:layout_height="150dp"
         android:id="@+id/thumbnail"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,7 +59,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayoutHeaders"
-        android:id="@+id/linearLayoutTextViews" >
+        android:id="@+id/linearLayoutTextViews"
+        android:baselineAligned="false">
 
         <RelativeLayout
             android:layout_width="0dp"

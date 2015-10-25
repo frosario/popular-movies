@@ -15,7 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("unchecked")
 public class Utility {
+    @SuppressWarnings("unused")
     static String TAG = "Utility";
 
     public static void networkNotAvailableToast(Context context){
@@ -23,15 +25,10 @@ public class Utility {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
-    public static boolean isNetworkAvailable(Context context){
+    public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
-
-        if (activeNetworkInfo != null) {
-            return activeNetworkInfo.isConnected();
-        } else {
-            return false;
-        }
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static void refreshMovies(Context context, GridView gv, ProgressBar pb) {
@@ -132,12 +129,9 @@ public class Utility {
     }
 
     public static List<String> loadFavorites(Context context) {
-        Set<String> sp = null;
-        List<String> list = new ArrayList<>();
         SharedPreferences sharedPrefs = getSharedPrefs(context);
-        sp = sharedPrefs.getStringSet("favorites", new HashSet<String>());
-        list = new ArrayList<>(sp);
-        return list;
+        Set<String> sp = sharedPrefs.getStringSet("favorites", new HashSet<String>());
+        return new ArrayList<>(sp);
     }
 
     public static void saveFavorites(Context context, List favorites) {

@@ -15,6 +15,7 @@ public class ApiKeyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_api_key);
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void save(View view) {
         EditText t = (EditText) findViewById(R.id.textApiKeyString);
         String apiKey = t.getText().toString();

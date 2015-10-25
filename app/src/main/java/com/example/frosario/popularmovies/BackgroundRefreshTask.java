@@ -19,6 +19,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@SuppressWarnings({"CanBeFinal", "WeakerAccess"})
 public class BackgroundRefreshTask extends AsyncTask {
     private Context context;
     private GridView gridView;
@@ -57,7 +58,7 @@ public class BackgroundRefreshTask extends AsyncTask {
         {"favorites"}
         */
 
-        String table = null;
+        String table;
         Long movieID = null;
 
         if (params[0] ==  null) {
@@ -68,6 +69,7 @@ public class BackgroundRefreshTask extends AsyncTask {
 
         if (params.length > 1) { movieID = (Long) params[1]; }
 
+        //noinspection IfCanBeSwitch
         if (table.equals("movies")) {
 
             if (Utility.hasEmptyTable(context, "movies")) {
@@ -106,6 +108,8 @@ public class BackgroundRefreshTask extends AsyncTask {
                     intent.putExtra("movie_id", movie_id);
                     context.startService(intent);
                 }
+
+                cursor.close();
             }
 
             while (Utility.hasEmptyTable(context, table)) {

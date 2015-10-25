@@ -18,7 +18,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"unchecked", "CanBeFinal"})
 public class DetailsActivityFragment extends Fragment {
+    @SuppressWarnings("FieldCanBeLocal")
     private String TAG = "DetailsActivityFragment";
     private Long id;
     private Context context;
