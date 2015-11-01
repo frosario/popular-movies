@@ -24,8 +24,8 @@ public class DetailsActivityFragment extends Fragment {
     private String TAG = "DetailsActivityFragment";
     private Long id;
     private Context context;
-    private String outputTitle = "";
-    private String outputPlot = "";
+    private String outputTitle;
+    private String outputPlot;
     private File imageFile;
     private View view;
     private RelativeLayout trailerLayout;
@@ -35,6 +35,7 @@ public class DetailsActivityFragment extends Fragment {
     private Button favoritesButton;
     private List<String> favorites;
     private Boolean isFavorite;
+    private Long idZero = Long.valueOf(0);
 
     public DetailsActivityFragment() { setHasOptionsMenu(false); }
 
@@ -48,17 +49,22 @@ public class DetailsActivityFragment extends Fragment {
         progressbarReviews = (ProgressBar) view.findViewById(R.id.reviewsSpinner);
         favoritesButton = (Button) view.findViewById(R.id.buttonFavorites);
 
-        //Get contextual info
-        Bundle extras = getActivity().getIntent().getExtras();
-        id = extras.getLong("id");
-        context = this.getContext();
+        try {
+            boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+            if (isTablet) { id = idZero; }
 
-        updateDataIfNecessary();
-        getMovieDetails(id);
-        setMovieThumbnail();
-        updateViews();
-        setFavoritesButtonListener();
+        } catch (RuntimeException e) {
+            Bundle extras = getActivity().getIntent().getExtras();
+            id = extras.getLong("id");
 
+        } finally {
+            context = this.getContext();
+            if (!id.equals(idZero)) {
+                displayInfoToUser();
+            } else {
+                view.setVisibility(View.INVISIBLE);
+            }
+        }
         return view;
     }
 
@@ -92,9 +98,9 @@ public class DetailsActivityFragment extends Fragment {
         }
     }
 
-    private void getMovieDetails(long movieID) {
+    private void getMovieDetails() {
         //Setup URI for MovieProvider
-        String uri_string = "content://com.example.frosario.popularmovies/movie/" + String.valueOf(movieID);
+        String uri_string = "content://com.example.frosario.popularmovies/movie/" + String.valueOf(id);
         Uri uri = Uri.parse(uri_string);
 
         //Query for movie details
@@ -107,9 +113,11 @@ public class DetailsActivityFragment extends Fragment {
 
         //Construct details text
         cursor.moveToFirst();
+        outputTitle = "";
         outputTitle += "Title:\n" + cursor.getString(column_title) + "\n\n";
         outputTitle += "Release Date:\n" + cursor.getString(column_release_date) + "\n\n";
         outputTitle += "User Rating:\n" + cursor.getString(column_vote_average) + "\n\n";
+        outputPlot = "";
         outputPlot += "Plot:\n" + cursor.getString(column_overview) + "\n";
 
         //Find poster thumbnail
@@ -140,7 +148,11 @@ public class DetailsActivityFragment extends Fragment {
         titleView.setText(outputTitle);
         TextView plotView = (TextView) view.findViewById(R.id.plot);
         plotView.setText(outputPlot);
-        if (isFavorite) { favoritesButton.setText(R.string.remove_from_favorites); }
+        if (isFavorite) {
+            favoritesButton.setText(R.string.remove_from_favorites);
+        } else {
+            favoritesButton.setText(R.string.add_to_favorites);
+        }
     }
 
     private void setFavoritesButtonListener(){
@@ -160,8 +172,21 @@ public class DetailsActivityFragment extends Fragment {
                     isFavorite = true;
                 }
 
-                Utility.saveFavorites(context,favorites);
+                Utility.saveFavorites(context, favorites);
             }
         });
+    }
+
+    private void displayInfoToUser(){
+        updateDataIfNecessary();
+        getMovieDetails();
+        setMovieThumbnail();
+        updateViews();
+        setFavoritesButtonListener();
+    }
+
+    public void refresh(Long longID){
+        id = longID;
+        displayInfoToUser();
     }
 }

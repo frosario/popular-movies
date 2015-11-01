@@ -50,8 +50,6 @@ public class Utility {
 
     public static void displayFavoriteMovies(Context context, GridView gv, ProgressBar pb) {
         if (isNetworkAvailable(context)) {
-            //TODO: User might go straight for this option, ensure trailers and reviews are not empty
-
             BackgroundRefreshTask backgroundRefreshTask = new BackgroundRefreshTask(context, gv, pb);
             backgroundRefreshTask.connectAdapter("favorites");
 

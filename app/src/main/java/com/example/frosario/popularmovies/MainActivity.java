@@ -1,6 +1,7 @@
 package com.example.frosario.popularmovies;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("currentSort", "popularity");
             editor.apply();
         }
+
+        forceOrientation();
     }
 
     @Override
@@ -104,6 +107,15 @@ public class MainActivity extends AppCompatActivity {
             Utility.refreshMovies(this, gridView, progressBar);
         } else {
             Utility.displayFavoriteMovies(this,gridView,progressBar);
+        }
+    }
+
+    private void forceOrientation(){
+        try {
+            boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+            if (isTablet) { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); }
+        } catch (RuntimeException e) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
     }
 }

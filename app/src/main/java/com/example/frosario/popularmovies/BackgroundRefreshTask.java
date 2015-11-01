@@ -8,6 +8,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -210,16 +213,37 @@ public class BackgroundRefreshTask extends AsyncTask {
                 throw new  UnsupportedOperationException("Purpose not supported");
         }
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        try {
+            boolean isTablet = context.getResources().getBoolean(R.bool.isTablet);
+            if (isTablet){
+                final AppCompatActivity activity = (AppCompatActivity) context;
+                final FragmentManager fragmentManager = activity.getSupportFragmentManager();
 
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Intent intent = new Intent(context, com.example.frosario.popularmovies.DetailsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("id", id);
-                context.startActivity(intent);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                        DetailsActivityFragment details = (DetailsActivityFragment) fragmentManager.findFragmentById(R.id.fragmentDetails);
+                        View view = activity.findViewById(R.id.fragmentDetails);
+                        details.refresh(id);
+                        view.setVisibility(View.VISIBLE);
+                    }
+
+                });
             }
 
-        });
+        } catch (RuntimeException e) {
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    Intent intent = new Intent(context, com.example.frosario.popularmovies.DetailsActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("id", id);
+                    context.startActivity(intent);
+                }
+
+            });
+        }
+
         progressBar.setVisibility(View.INVISIBLE);
     }
 
@@ -237,6 +261,11 @@ public class BackgroundRefreshTask extends AsyncTask {
         //Hide spinning Gif
         spinnerTrailers.setVisibility(View.INVISIBLE);
 
+
+        //Clear out trailers from previous movie selection
+        trailersLayout.removeAllViews();
+
+
         //Update with message if no trailers found
         if (cursor.getCount() < 1) {
             TextView textView = new TextView(context);
@@ -247,6 +276,7 @@ public class BackgroundRefreshTask extends AsyncTask {
             cursor.close();
             return;
         }
+
 
         //Create a new textview for each trailer returned
         while (cursor.moveToNext()) {
@@ -296,6 +326,11 @@ public class BackgroundRefreshTask extends AsyncTask {
         //Get rid of spinning gif
         spinnerReviews.setVisibility(View.INVISIBLE);
 
+
+        //Clear out reviews from previous movie selection
+        reviewsLayout.removeAllViews();
+
+        
         //Update with message if no reviews found
         if (cursor.getCount() < 1) {
             TextView textView = new TextView(context);
@@ -305,6 +340,7 @@ public class BackgroundRefreshTask extends AsyncTask {
             reviewsLayout.addView(textView, relativeParams);
             return;
         }
+
 
         //Create a new textview for each review returned
         while (cursor.moveToNext()) {
