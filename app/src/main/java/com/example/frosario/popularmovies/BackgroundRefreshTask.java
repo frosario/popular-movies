@@ -112,9 +112,11 @@ public class BackgroundRefreshTask extends AsyncTask {
                 cursor.close();
             }
 
-            while (Utility.hasEmptyTable(context, table)) {
+            int attempts = 0;
+            while (Utility.hasEmptyTable(context, table) && attempts < 2) {
                 Log.d(TAG, "Waiting on fresh " + table + " data...");
                 SystemClock.sleep(10000);
+                attempts += 1;
             }
 
         } else {
@@ -132,21 +134,9 @@ public class BackgroundRefreshTask extends AsyncTask {
                         SystemClock.sleep(10000);
                     }
 
-                    //After waiting check to see if there are trailers available
-                    String uri_string = "content://com.example.frosario.popularmovies/trailers/";
-                    uri_string += String.valueOf(movieID);
-                    Uri uri = Uri.parse(uri_string);
-                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                    int trailerCount = cursor.getCount();
-                    cursor.close();
-
-                    if (trailerCount > 0) {
-                        JSONObject json = new JSONObject().put("table", table);
-                        json.put("movieID", movieID);
-                        return json;
-                    } else {
-                        Log.d(TAG, "No trailers found for movie: " + String.valueOf(movieID));
-                    }
+                    JSONObject json = new JSONObject().put("table", table);
+                    json.put("movieID", movieID);
+                    return json;
 
                 } else if (table.equals("reviews")) {
                     //Async call to sleep waiting for reviews to refresh
@@ -157,21 +147,9 @@ public class BackgroundRefreshTask extends AsyncTask {
                         SystemClock.sleep(10000);
                     }
 
-                    //After waiting check to see if there are reviews available
-                    String uri_string = "content://com.example.frosario.popularmovies/reviews/";
-                    uri_string += String.valueOf(movieID);
-                    Uri uri = Uri.parse(uri_string);
-                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                    int reviewCount = cursor.getCount();
-                    cursor.close();
-
-                    if (reviewCount > 0) {
-                        JSONObject json = new JSONObject().put("table", table);
-                        json.put("movieID", movieID);
-                        return json;
-                    } else {
-                        Log.d(TAG, "No reviews found for movie: " + String.valueOf(movieID));
-                    }
+                    JSONObject json = new JSONObject().put("table", table);
+                    json.put("movieID", movieID);
+                    return json;
                 }
             }
         } catch (JSONException e) {
@@ -266,6 +244,7 @@ public class BackgroundRefreshTask extends AsyncTask {
             RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(wrapContent,wrapContent);
             relativeParams.addRule(below, belowThisId);
             trailersLayout.addView(textView, relativeParams);
+            cursor.close();
             return;
         }
 
