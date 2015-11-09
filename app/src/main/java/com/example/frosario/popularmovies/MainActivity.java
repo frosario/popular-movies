@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("currentSort", "popularity");
             editor.apply();
         }
-
-        forceOrientation();
     }
 
     @Override
@@ -107,15 +105,6 @@ public class MainActivity extends AppCompatActivity {
             Utility.refreshMovies(this, gridView, progressBar);
         } else {
             Utility.displayFavoriteMovies(this,gridView,progressBar);
-        }
-    }
-
-    private void forceOrientation(){
-        try {
-            boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-            if (isTablet) { setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); }
-        } catch (RuntimeException e) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
     }
 }
